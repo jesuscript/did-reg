@@ -1,4 +1,5 @@
 var webpack = require("webpack"),
+    WebpackErrorNotificationPlugin = require('webpack-error-notification'),
     path = require("path")
 
 var ENV = process.env.NODE_ENV || "development"
@@ -35,6 +36,9 @@ module.exports = {
         test: /\.html$/,
         loader: 'file?name=[name].[ext]'
       }
+    ],
+    plugins: [
+      new WebpackErrorNotificationPlugin()
     ]
   }
 }
