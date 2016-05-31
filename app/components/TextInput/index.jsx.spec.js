@@ -1,11 +1,11 @@
-import Search from "."
+import TextInput from "."
 import {Observable} from 'rx'
 import {mockDOMSource} from '@cycle/dom'
 import "should"
 
-describe("Search", function(){
+describe("TextInput", function(){
   const input = "abc"
-  
+
   var DOM
   
   beforeEach(function(){
@@ -17,8 +17,8 @@ describe("Search", function(){
   });
 
   it("emits initial input", function(done){
-    Search({
-      props$: Observable.of({searchQuery: ""}),
+    TextInput({
+      value$: Observable.of(""),
       DOM
     }).value$.first().subscribe((x) =>{
       x.should.be.equal("")
@@ -27,12 +27,21 @@ describe("Search", function(){
   });
   
   it("emits user input", function(done){
-    Search({
-      props$: Observable.of({searchQuery: ""}),
+    TextInput({
+      value$: Observable.of(""),
       DOM
     }).value$.last().subscribe((x) =>{
       x.should.be.equal(input)
       done()
+    })
+  })
+
+  it("doesn't emit if value hasn't changed", function(done){
+    TextInput({
+      value$: Observable.of(input),
+      DOM
+    }).value$.subscribe((x) =>{
+      done()//should trigger only once
     })
   })
 })

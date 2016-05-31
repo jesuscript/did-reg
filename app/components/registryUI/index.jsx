@@ -1,28 +1,53 @@
 import {hJSX} from '@cycle/dom';
 import {Observable} from 'rx'
-import Search from "../search"
+import TextInput from "../TextInput"
+import MorphingButton,{classes as MBClasses}  from "../MorphingButton"
+import isolate from '@cycle/isolate'
+import _ from "lodash"
 
-const view = (state$,searchDOM) => (
-  state$.combineLatest(searchDOM, (state, searchVTree) => (
-    <div>
-      {searchVTree}
-      {state.searchQuery}
-    </div>
-  ))
+const view = ({search,searchBtn},state$) => (
+  Observable.combineLatest(
+    search,
+    searchBtn,
+    state$,
+    (search, searchBtn, {counter}) => (
+      <div>
+        {search}
+        {searchBtn}
+        {counter}
+      </div>
+    ))
 )
 
-const model = (searchQuery$) => Observable.combineLatest(
-  searchQuery$,
-  (searchQuery) => ({
-    searchQuery
-  })
-)
+const model = (actions) => {
+  return Observable.combineLatest(
+    actions.queryChange$,
+    actions.counterInc$.startWith(0).scan((x,y) => x+y),
+    (query,counter) => ({
+      searchBtnText: query,
+      counter
+    })
+  )
+}
 
-export default ({DOM,props$}) => (
-  ((search) => ({
-    DOM: view(model(search.value$), search.DOM)
-  }))(Search({DOM,props$}))
-)
+const intent = ({search,searchBtn}) => {
+  return {
+    queryChange$: search.value$,
+    counterInc$: searchBtn.click$.map(ev => +1)
+  }
+}
 
 
+export default isolate(({DOM,props$}) => {
+  const search = TextInput({value$: props$.first().map(p => p.query), DOM}),
+        searchBtn = MorphingButton({props$: props$.map(p => ({text: p.searchBtnText})), DOM}),
+        state$ = model(intent({search,searchBtn}))
 
+  return {
+    DOM: view({
+      search: search.DOM,
+      searchBtn: searchBtn.DOM
+    }, state$),
+    props$: state$
+  }
+})

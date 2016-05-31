@@ -8,10 +8,10 @@ const intent = (DOM) => ({
     .map(ev => ev.target.value)
 })
 
-const model = (actions,props$) => (
-  props$.map(props => props.searchQuery).first().concat(actions.change$).map(v => ({
+const model = (actions,value$) => (
+  value$.concat(actions.change$).map(v => ({
     input: v
-  }))
+  })).distinctUntilChanged(x => x.input)
 )
 
 const view = (state$) => (
@@ -22,11 +22,13 @@ const view = (state$) => (
   ))
 )
 
-export default isolate(
-  ({props$, DOM}) =>((state$) => ({
+export default isolate(({value$, DOM}) =>(
+  ((state$) => ({
     DOM: view(state$),
     value$: state$.map(s => s.input)
-  }))(model(intent(DOM), props$))
-)
+  })
+  )(model(intent(DOM), value$))
+))
+
 
 
