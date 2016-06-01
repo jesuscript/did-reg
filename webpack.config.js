@@ -31,15 +31,22 @@ module.exports = {
       { test   : /\.(ttf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/, loader : 'file-loader' },
       { test: /\.css$/, loader: "style-loader!css-loader" },
       { test: /\.less$/, loader: "style!css!less" },
+      { test: /\.scss$/, loaders: ["style", "css", "sass"] },
       { test: /\.json$/, loader: "json-loader" },
       {
         test: /\.html$/,
         loader: 'file?name=[name].[ext]'
       }
-    ],
-    plugins: [
-      new WebpackErrorNotificationPlugin()
     ]
-  }
+  },
+  plugins: [
+    new WebpackErrorNotificationPlugin(),
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+      
+    })
+  ]
+  
 }
 

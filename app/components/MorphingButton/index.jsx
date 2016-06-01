@@ -37,7 +37,7 @@ const intent = (DOM) => {
 export default isolate(({props$,DOM}) => (
   ((state$) => ({
     DOM: view(state$),
-    click$: state$.do(x => console.log(x)).filter(s => s.event).map(s => s.event)
+    click$: state$.filter(s => s.event).map(s => s.event)
   })
   )(model(intent(DOM),props$))
 ))

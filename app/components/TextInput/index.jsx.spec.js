@@ -10,10 +10,10 @@ describe("TextInput", function(){
   
   beforeEach(function(){
     DOM = mockDOMSource({
-      "input[type=text]": {
+      "input": {
         keyup: Observable.just({target: {value: input}})
       }
-    })
+    }).select("input")
   });
 
   it("emits initial input", function(done){
@@ -26,11 +26,11 @@ describe("TextInput", function(){
     })
   });
   
-  it("emits user input", function(done){
+  it("emits user input (once)", function(done){
     TextInput({
       value$: Observable.of(""),
       DOM
-    }).value$.last().subscribe((x) =>{
+    }).value$.filter(v => v === input).subscribe((x) =>{
       x.should.be.equal(input)
       done()
     })

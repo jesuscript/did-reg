@@ -11,6 +11,7 @@ describe("MorphingButton", function(){
     DOM = mockDOMSource({
       button: { click: Observable.just({event: {win: true}})}
     })
+    console.log(DOM)
   })
 
   it("reacts to clicks", function(done){

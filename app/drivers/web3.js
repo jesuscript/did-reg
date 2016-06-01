@@ -1,6 +1,6 @@
 import Web3 from "web3"
 import {Observable} from 'rx'
-import {reduce,isFunction,each, keys} from "lodash"
+import {reduce,isFunction,keys,extend} from "lodash"
 
 export function makeWeb3Driver(rpcHost){
   const web3 = new Web3(new Web3.providers.HttpProvider(rpcHost))
@@ -22,11 +22,24 @@ export function makeWeb3Driver(rpcHost){
   }
 }
 
-export function makeContractDriver(rpcHost,contractAddr,abi){
+
+export function makeContractDriver(rpcHost,{contractAddr,abi}){
   const web3 = new Web3(new Web3.providers.HttpProvider(rpcHost)),
         contract = web3.eth.contract(abi).at(contractAddr)
 
-  return function(){
-    //TODO
-  }
+  var rxContract = abi.filter((x) => x.type === "function")
+        .map((x) => x.name)
+        .reduce((newContract,fnName) => {
+          newContract[fnName] = function(){
+            var args = arguments
+            console.log("call web3",args)
+            return Observable.fromNodeCallback(contract[fnName]).apply(null, args)
+          }
+          
+          return newContract
+        }, {})
+
+  return function(request$){
+    return rxContract
+  } 
 }

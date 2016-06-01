@@ -3,22 +3,20 @@ import {hJSX} from '@cycle/dom';
 import isolate from '@cycle/isolate'
 
 const intent = (DOM) => ({
-  change$: DOM.select("input[type=text]")
+  change$: DOM
     .events("keyup")
     .map(ev => ev.target.value)
 })
 
 const model = (actions,value$) => (
-  value$.concat(actions.change$).map(v => ({
+  value$.concat(actions.change$).distinctUntilChanged().map(v => ({
     input: v
-  })).distinctUntilChanged(x => x.input)
+  }))
 )
 
 const view = (state$) => (
   state$.map(state => (
-    <div className="search">
-      <input type="text" value={state.input}/>
-    </div>
+    <input type="text" className="form-control" value={state.input}/>
   ))
 )
 
