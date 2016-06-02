@@ -1,7 +1,7 @@
 import MorphingButton, {classes,model} from "."
 import {Observable} from 'rx'
 import {mockDOMSource} from '@cycle/dom'
-import "should"
+import should from "should"
 
 
 describe("MorphingButton", function(){
@@ -9,18 +9,26 @@ describe("MorphingButton", function(){
 
   beforeEach(function(){
     DOM = mockDOMSource({
-      button: { click: Observable.just({event: {win: true}})}
+      button: { click: Observable.just({win: true})}
+    }).select("button")
+  })
+
+  it("shouldn't error when given undefined props", function(done){
+    should.doesNotThrow(function(){
+      MorphingButton({
+        DOM: DOM,
+        props$: Observable.from([undefined, {text: ""}])
+      }).DOM.subscribe((p) => done())
     })
-    console.log(DOM)
   })
 
   it("reacts to clicks", function(done){
     MorphingButton({
       DOM,
       props$: Observable.of({text: ""})
-    }).click$
+    }).props$
       .subscribe((p) => {
-        p.win.should.be.true()
+        p.click.win.should.be.true()
         
         done()//testing that click triggers only once
       })
@@ -29,22 +37,12 @@ describe("MorphingButton", function(){
   describe("model", function(){
     var label = "abc"
     
-    it("emits all props on clicks", function(done){
+    it("emits clicks", function(done){
       model({
-        click$: Observable.of({event: {}})
-      }, Observable.of({text: label, className: "btn"})).subscribe((state) => {
-        if(state.event){
-          state.text.should.be.equal(label)
-          done()
-        }
-      })
-    })
-
-    it("emits no 'event' on props change", function(done){
-      model({
-        click$: Observable.of({event: {}})
-      }, Observable.of({text: label, className: "btn"})).subscribe((state) => {
-        if(!state.event) done()
+        click$: Observable.of({})
+      }).subscribe((p) => {
+        p.click.should.be.ok()
+        done()
       })
     })
   })

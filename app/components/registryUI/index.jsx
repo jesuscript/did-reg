@@ -7,11 +7,11 @@ import {extend} from "lodash"
 
 const view = ({search,searchBtn},state$) => (
   Observable.combineLatest(
-    search,
-    searchBtn,
+    search.DOM,
+    searchBtn.DOM,
     state$,
     (search, searchBtn, {counter}) => (
-      <div className="row">
+      <div className="row vertical-align">
         <div className="col-md-12">
           <form className="form-horizontal">
             <div className="col-md-9">
@@ -35,37 +35,28 @@ const model = ({queryChange$, searchBtnClick$},idReg) =>  Observable.merge(
   }).map(({registeredAddr}) => ({
     registeredAddr,
     nameAvailable: registeredAddr === "0x"
-  }))
+  })),
+  searchBtnClick$
 )
 
 
 const intent = ({search,searchBtn}) => ({
-  queryChange$: search.value$,
-  searchBtnClick$: searchBtn.click$
+  queryChange$: search.props$.map(p => p.value).share(),
+  searchBtnClick$: searchBtn.props$.map(p => p.click)
 })
 
 
 export default isolate(({DOM,props$,idReg}) => (
-  (({search,searchBtn}) => (
-    ((state$) => ({
-      
-      DOM: view({
-        search: search.DOM,
-        searchBtn: searchBtn.DOM
-      }, props$),
-      props$: state$
-      
-    }))(model(intent({search,searchBtn}), idReg, props$))
-  ))({
+  ((components) => ({
+    DOM: view(components, props$),
+    props$: model(intent(components), idReg)
+  }))({
     search: TextInput({
-      value$: props$.first().map(p => p.query),
+      props$: props$.map(p => p.search),
       DOM
     }),
     searchBtn: MorphingButton({
-      props$: props$.filter(p => p.searchBtnText).map(p => ({
-        text: p.searchBtnText,
-        className: "btn-default btn-block"
-      })),
+      props$: props$.map(p => p.searchBtn),
       DOM
     })
   })

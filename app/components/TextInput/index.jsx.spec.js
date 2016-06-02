@@ -1,10 +1,11 @@
 import TextInput from "."
 import {Observable} from 'rx'
 import {mockDOMSource} from '@cycle/dom'
-import "should"
+import should from "should"
 
 describe("TextInput", function(){
-  const input = "abc"
+  const input = "abc",
+        initProps = Observable.of({value: ""})
 
   var DOM
   
@@ -18,30 +19,39 @@ describe("TextInput", function(){
 
   it("emits initial input", function(done){
     TextInput({
-      value$: Observable.of(""),
-      DOM
-    }).value$.first().subscribe((x) =>{
-      x.should.be.equal("")
+      props$: initProps,
+      DOM: mockDOMSource()
+    }).props$.subscribe((x) =>{
+      x.should.be.ok()
       done()
     })
   });
   
   it("emits user input (once)", function(done){
     TextInput({
-      value$: Observable.of(""),
+      props$: initProps,
       DOM
-    }).value$.filter(v => v === input).subscribe((x) =>{
-      x.should.be.equal(input)
-      done()
+    }).props$.filter(p => p.value === input).subscribe((x) =>{
+      done() //should only be called once
     })
   })
 
   it("doesn't emit if value hasn't changed", function(done){
     TextInput({
-      value$: Observable.of(input),
+      props$: Observable.from([{value: input}, {value: input}]),
       DOM
-    }).value$.subscribe((x) =>{
-      done()//should trigger only once
+    }).props$.subscribe((x) =>{
+      done() //should only be called once
     })
   })
+
+  it("shouldn't error when given undefined props", function(done){
+    should.doesNotThrow(function(){
+      TextInput({
+        DOM,
+        props$: Observable.from([undefined, {value: ""}])
+      }).DOM.subscribe((p) => done())
+    })
+  })
+
 })

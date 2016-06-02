@@ -19,7 +19,12 @@ Cycle.run(main, {
   web3: makeWeb3Driver(config.rpcAddr),
   idReg: makeContractDriver(config.rpcAddr,registryContracts.IdReg),
   props$: (state$) => state$.startWith({
-    query: "",
-    searchBtnText: "Register"
+    search:{
+      value: ""
+    },
+    searchBtn: {
+      text: "Register",
+      className: "btn-default btn-block"
+    }
   })
 });

@@ -6,27 +6,27 @@ const intent = (DOM) => ({
   change$: DOM
     .events("keyup")
     .map(ev => ev.target.value)
+    .distinctUntilChanged()
 })
 
-const model = (actions,value$) => (
-  value$.concat(actions.change$).distinctUntilChanged().map(v => ({
-    input: v
+const model = (actions) => (
+  actions.change$.map(value => ({
+    value
   }))
 )
 
 const view = (state$) => (
-  state$.map(state => (
-    <input type="text" className="form-control" value={state.input}/>
+  state$.filter(x => x).map(state => (
+    <input type="text" className="form-control" value={state.value}/>
   ))
 )
 
-export default isolate(({value$, DOM}) =>(
-  ((state$) => ({
-    DOM: view(state$),
-    value$: state$.map(s => s.input)
-  })
-  )(model(intent(DOM), value$))
-))
+export default isolate(({props$, DOM}) =>({
+  DOM: view(props$),
+  props$: props$.filter(x => x)
+    .merge(model(intent(DOM)))
+    .distinctUntilChanged(p => p.value)
+}))
 
 
 

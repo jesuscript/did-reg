@@ -7,7 +7,7 @@ export const classes = {
 }
 
 const getClass = (state) => (
-  `btn ${state.className}`
+  `btn ${state.className || ""}`
 )
 
 const getText = (state) => (
@@ -20,24 +20,19 @@ const view = (state$) => (
   ))
 )
 
-export const model = (actions,props$) => (
-  props$.merge(actions.click$.withLatestFrom(props$, (event,props) =>({
-    text: props.text,
-    className: props.className,
-    event
-  })))
+export const model = (actions) => (
+  actions.click$.map((event) =>({
+    click: event
+  }))
 )
 
 const intent = (DOM) => {
   return ({
-    click$: DOM.events("click")
+    click$: DOM.events("click").do(e => e.preventDefault())
   })
 } 
 
-export default isolate(({props$,DOM}) => (
-  ((state$) => ({
-    DOM: view(state$),
-    click$: state$.filter(s => s.event).map(s => s.event)
-  })
-  )(model(intent(DOM),props$))
-))
+export default isolate(({props$,DOM}) => ({
+  DOM: view(props$.filter(x => x)),
+  props$: model(intent(DOM))
+}))
