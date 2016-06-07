@@ -1,23 +1,22 @@
+import {Observable} from 'rx'
 import isolate from '@cycle/isolate'
 import {hJSX} from '@cycle/dom';
 
 
 export const classes = {
-  DEFAULT: "btn btn-default"
+  DEFAULT: "btn btn-default",
+  PRIMARY: "btn btn-primary"
 }
 
-const getClass = (state) => (
-  `btn ${state.className || ""}`
-)
-
-const getText = (state) => (
-  state.text
-)
-
 const view = (state$) => (
-  state$.map(state => (
-    <button className={getClass(state)}>{getText(state)}</button>
-  ))
+  Observable.combineLatest(
+    state$.filter(s => s.className),
+    state$.filter(s => s.text),
+    state$.filter(s => s.disabled !== undefined),
+    ({className}, {text}, {disabled}) => (
+      <button className={className} disabled={disabled}>{text}</button>
+    )
+  )
 )
 
 export const model = (actions) => (
@@ -33,6 +32,6 @@ const intent = (DOM) => {
 } 
 
 export default isolate(({props$,DOM}) => ({
-  DOM: view(props$.filter(x => x)),
+  DOM: view(props$.startWith({disabled: true})),
   props$: model(intent(DOM))
 }))

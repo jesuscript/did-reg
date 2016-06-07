@@ -6,7 +6,7 @@ export function makeWeb3Driver(rpcHost){
   const web3 = new Web3(new Web3.providers.HttpProvider(rpcHost))
 
   return function(){
-    return {
+    return extend({},web3,{
       eth: reduce(keys(web3.eth), (eth,name) => {
         //converting all eth functions into observables, ignoring getters because they suck
 
@@ -18,7 +18,7 @@ export function makeWeb3Driver(rpcHost){
 
         return eth
       },{})
-    }
+    })
   }
 }
 

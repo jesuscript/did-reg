@@ -4,7 +4,7 @@ import {Observable} from 'rx'
 import "bootstrap/less/bootstrap.less"
 import "bootstrap"
 
-import "./css/superhero.bootstrap.min.css"
+import "./css/paper.bootstrap.min.css"
 
 import "./less/main.less"
 import "./sass/main.scss" //cuz why not have both.
@@ -19,12 +19,5 @@ Cycle.run(main, {
   web3: makeWeb3Driver(config.rpcAddr),
   idReg: makeContractDriver(config.rpcAddr,registryContracts.IdReg),
   props$: (state$) => state$.startWith({
-    search:{
-      value: ""
-    },
-    searchBtn: {
-      text: "Register",
-      className: "btn-default btn-block"
-    }
   })
 });

@@ -16,16 +16,20 @@ const model = (actions) => (
 )
 
 const view = (state$) => (
-  state$.filter(x => x).map(state => (
-    <input type="text" className="form-control" value={state.value}/>
-  ))
+  Observable.combineLatest(
+    state$.filter(x => x.value !== undefined).map(x => x.value).startWith(""),
+    state$.filter(x => x.placeholder !== undefined).map(x => x.placeholder).startWith(""),
+    (value, placeholder) => (
+      <input type="text" className="form-control" value={value} placeholder={placeholder}/>
+    )
+  )
 )
 
 export default isolate(({props$, DOM}) =>({
   DOM: view(props$),
-  props$: props$.filter(x => x)
-    .merge(model(intent(DOM)))
-    .distinctUntilChanged(p => p.value)
+  props$: model(intent(DOM)).merge(
+    props$
+  )
 }))
 
 
