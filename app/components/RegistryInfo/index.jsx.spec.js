@@ -17,8 +17,6 @@ describe("RegistryInfo", function(){
           console.warn("Need to have at least one account for this test to work")
           done()
         }else{
-          console.log("Accounts:",state.accounts)
-          
           let acc = state.accounts[0]
 
           acc.address.should.be.ok()

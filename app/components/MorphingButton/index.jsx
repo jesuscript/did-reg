@@ -8,22 +8,10 @@ export const classes = {
   PRIMARY: "btn btn-primary"
 }
 
-const view = (state$) => (
-  Observable.combineLatest(
-    state$.filter(s => s.className),
-    state$.filter(s => s.text),
-    state$.filter(s => s.disabled !== undefined),
-    ({className}, {text}, {disabled}) => (
-      <button className={className} disabled={disabled}>{text}</button>
-    )
-  )
-)
-
-export const model = (actions) => (
-  actions.click$.map((event) =>({
-    click: event
-  }))
-)
+const view = (state$) => state$.map(({className,disabled,text}) => (
+  <button className={className} disabled={disabled}>{text}</button>
+))
+  
 
 const intent = (DOM) => {
   return ({
@@ -31,7 +19,15 @@ const intent = (DOM) => {
   })
 } 
 
-export default isolate(({props$,DOM}) => ({
-  DOM: view(props$.startWith({disabled: true})),
-  props$: model(intent(DOM))
-}))
+export default isolate(({props$,DOM}) => {
+  const actions = intent(DOM)
+  
+  return {
+    DOM: view(props$.startWith({
+      className: classes.DEFAULT,
+      disabled: true,
+      text: ""
+    })),
+    click$: actions.click$
+  }
+})

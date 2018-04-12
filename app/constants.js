@@ -1,3 +1,4 @@
+import {reduce} from "lodash"
 
 export default enumerate([
   "ID_STATUS_TAKEN",
@@ -9,7 +10,7 @@ export default enumerate([
 
 
 function enumerate(arr){
-  return _.reduce(arr, function(e, v){
+  return reduce(arr, function(e, v){
     e[v] = v
     return e
   },{});
